@@ -27,7 +27,7 @@
 }
 
 .picker-ios .picker-toolbar-button {
-  @include text-align(end);
+  text-align: end;
 
   flex: 1;
 }
@@ -37,7 +37,7 @@
 }
 
 .picker-ios .picker-toolbar-button:first-child {
-  @include text-align(start);
+  text-align: start;
 
   font-weight: normal;
 }
@@ -81,11 +81,7 @@
 }
 
 .picker-ios .picker-opt {
-  @include padding(
-    $picker-ios-option-padding-top,
-    $picker-ios-option-padding-end,
-    $picker-ios-option-padding-bottom,
-    $picker-ios-option-padding-start);
+  @include padding($picker-ios-option-padding-top, $picker-ios-option-padding-end, $picker-ios-option-padding-bottom, $picker-ios-option-padding-start);
   @include margin(0);
   @include transform-origin(center, center);
 

@@ -8,11 +8,21 @@ TabButton is an internal component for tabs. Please see the [Tab docs](../tab) f
 
 ## Properties
 
+#### color
+
+string
+
+
+#### mode
+
+string
+
+
 #### selected
 
 boolean
 
-If the tab is selected or not
+If true, the tab button will be selected. Defaults to `false`.
 
 
 #### tab
@@ -24,11 +34,21 @@ The tab component for the button
 
 ## Attributes
 
+#### color
+
+string
+
+
+#### mode
+
+string
+
+
 #### selected
 
 boolean
 
-If the tab is selected or not
+If true, the tab button will be selected. Defaults to `false`.
 
 
 #### tab

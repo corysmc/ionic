@@ -1,9 +1,10 @@
 @import "../../themes/ionic.globals";
 
-ion-tab-button {
-  @include margin(0);
-  @include text-align(center);
+:host {
   @include border-radius(0);
+  @include margin(0);
+
+  text-align: center;
 
   box-sizing: border-box;
 
@@ -22,13 +23,35 @@ ion-tab-button {
   background: none;
 
   user-select: none;
+
+  box-sizing: border-box;
 }
 
-ion-tab-button a {
+:host(.ion-color) {
+  color: #{current-color(contrast)};
+
+  --color-selected: #{current-color(contrast)};
+  --background-selected: #{current-color(shade)};
+}
+
+:host(.focused) {
+  background: var(--background-focused);
+}
+
+:host(:hover),
+:host(.tab-selected) {
+  color: var(--color-selected);
+}
+
+:host(.tab-hidden) {
+  display: none;
+}
+
+a {
   text-decoration: none;
 }
 
-.tab-cover {
+.tab-button-native {
   @include margin(0);
   @include padding(0);
 
@@ -45,6 +68,7 @@ ion-tab-button a {
   color: inherit;
   background: transparent;
   cursor: pointer;
+  box-sizing: border-box;
 
   &:active,
   &:focus {
@@ -52,16 +76,18 @@ ion-tab-button a {
   }
 }
 
-.tab-btn-disabled {
+:host(.tab-button-disabled) {
   pointer-events: none;
+}
 
-  > .tab-cover {
-    opacity: .4;
-  }
+:host(.tab-button-disabled) .tab-button-native {
+  opacity: .4;
 }
 
 .tab-button-text,
 .tab-button-icon {
+  box-sizing: border-box;
+
   display: none;
   overflow: hidden;
 
@@ -74,14 +100,43 @@ ion-tab-button a {
   white-space: nowrap;
 }
 
-.has-icon .tab-button-icon,
-.has-title .tab-button-text {
+:host(.has-icon) .tab-button-icon,
+:host(.has-label) .tab-button-text {
   display: block;
 }
 
-.has-title-only .tab-button-text {
+:host(.has-label-only) .tab-button-text {
   white-space: normal;
 }
+
+:host(.has-icon-only) .tab-button-native,
+:host(.has-label-only) .tab-button-native {
+  justify-content: center;
+}
+
+
+// Tab Badges
+// --------------------------------------------------
+
+.tab-badge {
+  @include position(6%, 4%, null, null); // 4% fallback
+  @include position(null, calc(50% - 50px), null, null);
+  @include padding(1px, 6px);
+
+  position: absolute;
+
+  height: auto;
+
+  font-size: 12px;
+  line-height: 16px;
+  box-sizing: border-box;
+}
+
+:host(.has-icon) .tab-badge {
+  @include position(null, calc(50% - 30px), null, null);
+}
+
+
 
 // Tab Badges
 // --------------------------------------------------
@@ -101,34 +156,15 @@ ion-tab-button a {
 .layout-icon-start .tab-button,
 .layout-icon-end .tab-button,
 .layout-icon-hide .tab-button,
-.layout-title-hide .tab-button {
+.layout-label-hide .tab-button {
   justify-content: center;
 }
 
 .layout-icon-hide .tab-button-icon,
-.layout-title-hide .tab-button-text {
+.layout-label-hide .tab-button-text {
   display: none;
 }
 
-// Tab Badges
-// --------------------------------------------------
-
-.tab-badge {
-  @include position(6%, 4%, null, null); // 4% fallback
-  @include position(null, calc(50% - 50px), null, null);
-  @include padding(1px, 6px);
-
-  position: absolute;
-
-  height: auto;
-
-  font-size: 12px;
-  line-height: 16px;
-}
-
-.has-icon .tab-badge {
-  @include position(null, calc(50% - 30px), null, null);
-}
 
 .layout-icon-bottom .tab-badge,
 .layout-icon-start .tab-badge,

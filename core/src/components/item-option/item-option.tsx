@@ -1,17 +1,19 @@
-import { Component, Prop } from '@stencil/core';
+import { Component, Element, Prop } from '@stencil/core';
 import { Color, Mode } from '../../interface';
+import { createColorClasses } from '../../utils/theme';
 
 @Component({
   tag: 'ion-item-option',
-  host: {
-    theme: 'item-option'
-  },
   styleUrls: {
     ios: 'item-option.ios.scss',
     md: 'item-option.md.scss'
-  }
+  },
+  shadow: true
 })
 export class ItemOption {
+
+  @Element() el!: HTMLElement;
+
   /**
    * The color to use for the option
    */
@@ -47,6 +49,7 @@ export class ItemOption {
   hostData() {
     return {
       class: {
+        ...createColorClasses(this.color),
         'item-option-expandable': this.expandable
       }
     };
@@ -57,18 +60,18 @@ export class ItemOption {
 
     return (
       <TagType
-        class="item-option-button"
+        class="item-option-native"
         disabled={this.disabled}
         href={this.href}
         onClick={this.clickedOptionButton.bind(this)}
       >
         <span class="item-option-button-inner">
-          <slot name="start" />
+          <slot name="start"></slot>
           <slot name="top" />
           <slot name="icon-only" />
-          <slot />
+          <slot></slot>
           <slot name="bottom" />
-          <slot name="end" />
+          <slot name="end"></slot>
         </span>
       </TagType>
     );

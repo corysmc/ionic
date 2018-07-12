@@ -10,17 +10,19 @@ export class Tab {
   private loaded = false;
   @Element() el!: HTMLIonTabElement;
 
-  /** If the tab is active or not */
+  /**
+   * If true, sets the tab as the active tab.
+   */
   @Prop({ mutable: true }) active = false;
 
   /** hidden */
   @Prop() btnId?: string;
 
-  /** @hidden */
+  /** hidden */
   @Prop() delegate?: FrameworkDelegate;
 
   /**
-   * The title of the tab.
+   * The label of the tab.
    */
   @Prop() label?: string;
 
@@ -42,7 +44,7 @@ export class Tab {
   /**
    * The badge color for the tab button.
    */
-  @Prop() badgeColor: Color = 'default';
+  @Prop() badgeColor?: Color;
 
   /**
    * The component to display inside of the tab.
@@ -62,7 +64,7 @@ export class Tab {
   /**
    * If true, the tab will be selected. Defaults to `false`.
    */
-  @Prop({ mutable: true }) selected = false;
+  @Prop() selected = false;
 
   @Watch('selected')
   selectedChanged(selected: boolean) {
@@ -81,7 +83,6 @@ export class Tab {
    */
   @Prop() tabsHideOnSubPages = false;
 
-
   /**
    * Emitted when the current tab is selected.
    */
@@ -93,7 +94,7 @@ export class Tab {
         console.error('You can not use a lazy-loaded component in a tab and inlined content at the same time.' +
       `- Remove the component attribute in: <ion-tab component="${this.component}">` +
       ` or` +
-      `- Remove the embeded content inside the ion-tab: <ion-tab></ion-tab>`);
+      `- Remove the embedded content inside the ion-tab: <ion-tab></ion-tab>`);
       }
     }
   }

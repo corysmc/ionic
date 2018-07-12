@@ -1,3 +1,51 @@
+<a name="4.0.0-alpha.10"></a>
+# [4.0.0-alpha.10](https://github.com/ionic-team/ionic/compare/v4.0.0-alpha.9...v4.0.0-alpha.10) (2018-07-11)
+
+
+### Bug Fixes
+
+* **angular:** publish css to npm ([748c209](https://github.com/ionic-team/ionic/commit/748c209))
+* **item:** pass the correct type property to the button tag ([5f8b02e](https://github.com/ionic-team/ionic/commit/5f8b02e)), closes [#14740](https://github.com/ionic-team/ionic/issues/14740)
+* **tabs:** correct alignment for label/icon only tabs ([b46c3e2](https://github.com/ionic-team/ionic/commit/b46c3e2))
+* **tabs:** update the tabbar placement value to match the property it applies to ([45583bc](https://github.com/ionic-team/ionic/commit/45583bc))
+* **toolbar:** get translucency working with header, footer and toolbar ([f6ab5b6](https://github.com/ionic-team/ionic/commit/f6ab5b6))
+
+
+
+<a name="4.0.0-alpha.9"></a>
+# [4.0.0-alpha.9](https://github.com/ionic-team/ionic/compare/v4.0.0-alpha.8...v4.0.0-alpha.9) (2018-07-10)
+
+
+### Bug Fixes
+
+* **angular:** esm ([0e68f17](https://github.com/ionic-team/ionic/commit/0e68f17))
+
+
+<a name="4.0.0-alpha.8"></a>
+# [4.0.0-alpha.8](https://github.com/ionic-team/ionic/compare/v4.0.0-alpha.7...v4.0.0-alpha.8) (2018-07-09)
+
+
+### Bug Fixes
+
+* **angular:** avoid TS 2.8 features ([c736bac](https://github.com/ionic-team/ionic/commit/c736bac))
+* **angular:** correct subscription to cordova ready event ([#14577](https://github.com/ionic-team/ionic/issues/14577)) ([5967352](https://github.com/ionic-team/ionic/commit/5967352))
+* **bundling:** fix EventEmitter import ([8e47101](https://github.com/ionic-team/ionic/commit/8e47101))
+* linting ([e629e29](https://github.com/ionic-team/ionic/commit/e629e29))
+* **icon:** target element for style and add to breaking ([949d93e](https://github.com/ionic-team/ionic/commit/949d93e))
+* **overlay:** make type an any ([15dc651](https://github.com/ionic-team/ionic/commit/15dc651))
+* **router:** fix reuse strategy ([bd53bba](https://github.com/ionic-team/ionic/commit/bd53bba))
+* **scripts:** update github release notes ([fc078af](https://github.com/ionic-team/ionic/commit/fc078af))
+* **tabs:** align tab title and icons to flex-start ([c11d74b](https://github.com/ionic-team/ionic/commit/c11d74b)), closes [#14606](https://github.com/ionic-team/ionic/issues/14606)
+
+
+### Features
+
+* **all:** custom icons ([e6638e7](https://github.com/ionic-team/ionic/commit/e6638e7))
+* **dir:** default to ltr css, rtl overrides w/ [dir=rtl] selectors ([fb4353c](https://github.com/ionic-team/ionic/commit/fb4353c))
+* **slides:** update swiper to latest ([8e164d6](https://github.com/ionic-team/ionic/commit/8e164d6))
+
+
+
 <a name="4.0.0-alpha.7"></a>
 # [4.0.0-alpha.7](https://github.com/ionic-team/ionic/compare/v4.0.0-alpha.6...v4.0.0-alpha.7) (2018-05-17)
 

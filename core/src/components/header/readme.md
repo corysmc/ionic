@@ -10,6 +10,14 @@ It's important to note that ion-header needs to be the one of the three root ele
 
 ## Properties
 
+#### mode
+
+string
+
+The mode determines which platform styles to use.
+Possible values are: `"ios"` or `"md"`.
+
+
 #### translucent
 
 boolean
@@ -21,6 +29,14 @@ Defaults to `false`.
 
 
 ## Attributes
+
+#### mode
+
+string
+
+The mode determines which platform styles to use.
+Possible values are: `"ios"` or `"md"`.
+
 
 #### translucent
 

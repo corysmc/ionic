@@ -36,15 +36,21 @@ import {
   Animation,
   AnimationBuilder,
   BlockerConfig,
+  BlockerDelegate,
   CheckedInputChangeEvent,
   Color,
   ComponentProps,
   ComponentRef,
+  DomRenderFn,
   FrameworkDelegate,
   GestureCallback,
   GestureConfig,
+  GestureDelegate,
   GestureDetail,
+  HeaderFn,
   InputChangeEvent,
+  ItemHeightFn,
+  ItemRenderFn,
   Knob,
   LoadingOptions,
   Menu,
@@ -53,6 +59,7 @@ import {
   Mode,
   NavComponent,
   NavOptions,
+  OverlayEventDetail,
   PickerButton,
   PickerColumn,
   PickerOptions,
@@ -63,47 +70,23 @@ import {
   RouterEventDetail,
   RouterOutletOptions,
   RouteWrite,
+  ScrollBaseDetail,
+  ScrollDetail,
   SelectInputChangeEvent,
   SelectInterface,
   SelectPopoverOption,
+  Side,
   StyleEvent,
+  TabbarLayout,
+  TabbarPlacement,
   ToastOptions,
   TransitionDoneFn,
   TransitionInstruction,
+  ViewController,
 } from './interface';
-import {
-  OverlayEventDetail,
-} from './utils/overlays';
 import {
   EventEmitter,
 } from '@stencil/core';
-import {
-  BlockerDelegate,
-  GestureDelegate,
-} from './components/gesture-controller/gesture-controller-utils';
-import {
-  Side,
-} from './utils/helpers';
-import {
-  ViewController,
-} from './components/nav/view-controller';
-import {
-  RouterIntent,
-} from './components/router/utils/constants';
-import {
-  ScrollBaseDetail,
-  ScrollDetail,
-} from './components/scroll/scroll';
-import {
-  TabbarLayout,
-  TabbarPlacement,
-} from './components/tabbar/tabbar';
-import {
-  DomRenderFn,
-  HeaderFn,
-  ItemHeightFn,
-  ItemRenderFn,
-} from './components/virtual-scroll/virtual-scroll-utils';
 
 declare global {
 
@@ -112,7 +95,7 @@ declare global {
       /**
        * Create an action sheet overlay with action sheet options.
        */
-      'create': (opts?: ActionSheetOptions | undefined) => Promise<HTMLIonActionSheetElement | null>;
+      'create': (opts?: ActionSheetOptions | undefined) => Promise<HTMLIonActionSheetElement>;
       /**
        * Dismiss the open action sheet overlay.
        */
@@ -188,11 +171,11 @@ declare global {
       /**
        * Returns a promise that resolves when the action-sheet did dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onDidDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onDidDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Returns a promise that resolves when the action-sheet will dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onWillDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onWillDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Unique ID to be used with the overlay. Internal only
        */
@@ -315,7 +298,7 @@ declare global {
       /**
        * Create an alert overlay with alert options
        */
-      'create': (opts?: AlertOptions | undefined) => Promise<HTMLIonAlertElement | null>;
+      'create': (opts?: AlertOptions | undefined) => Promise<HTMLIonAlertElement>;
       /**
        * Dismiss the open alert overlay.
        */
@@ -359,7 +342,7 @@ declare global {
       /**
        * Array of buttons to be added to the alert.
        */
-      'buttons': AlertButton[];
+      'buttons': (AlertButton | string)[];
       /**
        * Additional classes to apply for custom CSS. If multiple classes are provided they should be separated by spaces.
        */
@@ -397,11 +380,11 @@ declare global {
       /**
        * Returns a promise that resolves when the alert did dismiss. It also accepts a callback that is called in the same circumstances.
        */
-      'onDidDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onDidDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Returns a promise that resolves when the alert will dismiss. It also accepts a callback that is called in the same circumstances.
        */
-      'onWillDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onWillDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       'overlayId': number;
       /**
        * Present the alert overlay after it has been created.
@@ -444,7 +427,7 @@ declare global {
       /**
        * Array of buttons to be added to the alert.
        */
-      'buttons'?: AlertButton[];
+      'buttons'?: (AlertButton | string)[];
       /**
        * Additional classes to apply for custom CSS. If multiple classes are provided they should be separated by spaces.
        */
@@ -801,7 +784,7 @@ declare global {
   namespace StencilComponents {
     interface IonBadge {
       /**
-       * The color the badge should be
+       * The color the badge should be.
        */
       'color': Color;
       /**
@@ -831,7 +814,7 @@ declare global {
   namespace JSXElements {
     export interface IonBadgeAttributes extends HTMLAttributes {
       /**
-       * The color the badge should be
+       * The color the badge should be.
        */
       'color'?: Color;
       /**
@@ -1016,10 +999,6 @@ declare global {
   namespace StencilComponents {
     interface IonCardContent {
       /**
-       * The color to use for the text.
-       */
-      'color': Color;
-      /**
        * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
        */
       'mode': Mode;
@@ -1045,10 +1024,6 @@ declare global {
   }
   namespace JSXElements {
     export interface IonCardContentAttributes extends HTMLAttributes {
-      /**
-       * The color to use for the text.
-       */
-      'color'?: Color;
       /**
        * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
        */
@@ -1423,6 +1398,61 @@ declare global {
 declare global {
 
   namespace StencilComponents {
+    interface IonChipIcon {
+      /**
+       * The color to use. Default options are: `"primary"`, `"secondary"`, `"tertiary"`, `"success"`, `"warning"`, `"danger"`, `"light"`, `"medium"`, and `"dark"`.
+       */
+      'color': Color;
+      /**
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
+       */
+      'mode': Mode;
+      /**
+       * The icon to use. Possible values are the same as `"ion-icon"`.
+       */
+      'name': string;
+    }
+  }
+
+  interface HTMLIonChipIconElement extends StencilComponents.IonChipIcon, HTMLStencilElement {}
+
+  var HTMLIonChipIconElement: {
+    prototype: HTMLIonChipIconElement;
+    new (): HTMLIonChipIconElement;
+  };
+  interface HTMLElementTagNameMap {
+    'ion-chip-icon': HTMLIonChipIconElement;
+  }
+  interface ElementTagNameMap {
+    'ion-chip-icon': HTMLIonChipIconElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      'ion-chip-icon': JSXElements.IonChipIconAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface IonChipIconAttributes extends HTMLAttributes {
+      /**
+       * The color to use. Default options are: `"primary"`, `"secondary"`, `"tertiary"`, `"success"`, `"warning"`, `"danger"`, `"light"`, `"medium"`, and `"dark"`.
+       */
+      'color'?: Color;
+      /**
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
+       */
+      'mode'?: Mode;
+      /**
+       * The icon to use. Possible values are the same as `"ion-icon"`.
+       */
+      'name'?: string;
+    }
+  }
+}
+
+
+declare global {
+
+  namespace StencilComponents {
     interface IonChip {
       /**
        * The color to use.
@@ -1694,6 +1724,7 @@ declare global {
 
   namespace StencilComponents {
     interface IonContent {
+      'color': Color;
       /**
        * If true and the content does not cause an overflow scroll, the scroll interaction will cause a bounce. If the content exceeds the bounds of ionContent, nothing will change. Note, the does not disable the system bounce on iOS. That is an OS level setting.
        */
@@ -1702,24 +1733,15 @@ declare global {
        * If true, the content will scroll behind the headers and footers. This effect can easily be seen by setting the toolbar to transparent.
        */
       'fullscreen': boolean;
+      'getScrollElement': () => HTMLIonScrollElement;
       /**
-       * Scroll by a specific X/Y distance
+       * By default `ion-content` uses an `ion-scroll` under the hood to implement scrolling, if you want to disable the content scrolling for a given page, set this property to `false`.
        */
-      'scrollByPoint': (x: number, y: number, duration: number, done?: Function | undefined) => Promise<any>;
       'scrollEnabled': boolean;
+      /**
+       * Because of performance reasons, ionScroll events are disabled by default, in order to enable them and start listening from (ionScroll), set this property to `true`.
+       */
       'scrollEvents': boolean;
-      /**
-       * Scroll to the bottom of the content component.  Duration of the scroll animation in milliseconds. Defaults to `300`. Returns a promise which is resolved when the scroll has completed.
-       */
-      'scrollToBottom': (duration?: number) => Promise<void>;
-      /**
-       * Scroll to a specific X/Y coordinate in the content
-       */
-      'scrollToPoint': (x: number, y: number, duration: number, done?: Function | undefined) => Promise<any>;
-      /**
-       * Scroll to the top of the content component.  Duration of the scroll animation in milliseconds. Defaults to `300`. Returns a promise which is resolved when the scroll has completed.
-       */
-      'scrollToTop': (duration?: number) => Promise<void>;
     }
   }
 
@@ -1742,6 +1764,7 @@ declare global {
   }
   namespace JSXElements {
     export interface IonContentAttributes extends HTMLAttributes {
+      'color'?: Color;
       /**
        * If true and the content does not cause an overflow scroll, the scroll interaction will cause a bounce. If the content exceeds the bounds of ionContent, nothing will change. Note, the does not disable the system bounce on iOS. That is an OS level setting.
        */
@@ -1750,7 +1773,13 @@ declare global {
        * If true, the content will scroll behind the headers and footers. This effect can easily be seen by setting the toolbar to transparent.
        */
       'fullscreen'?: boolean;
+      /**
+       * By default `ion-content` uses an `ion-scroll` under the hood to implement scrolling, if you want to disable the content scrolling for a given page, set this property to `false`.
+       */
       'scrollEnabled'?: boolean;
+      /**
+       * Because of performance reasons, ionScroll events are disabled by default, in order to enable them and start listening from (ionScroll), set this property to `true`.
+       */
       'scrollEvents'?: boolean;
     }
   }
@@ -2148,6 +2177,10 @@ declare global {
   namespace StencilComponents {
     interface IonFooter {
       /**
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
+       */
+      'mode': Mode;
+      /**
        * If true, the footer will be translucent. Note: In order to scroll content behind the footer, the `fullscreen` attribute needs to be set on the content. Defaults to `false`.
        */
       'translucent': boolean;
@@ -2173,6 +2206,10 @@ declare global {
   }
   namespace JSXElements {
     export interface IonFooterAttributes extends HTMLAttributes {
+      /**
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
+       */
+      'mode'?: Mode;
       /**
        * If true, the footer will be translucent. Note: In order to scroll content behind the footer, the `fullscreen` attribute needs to be set on the content. Defaults to `false`.
        */
@@ -2233,10 +2270,6 @@ declare global {
        * What component to attach listeners to.
        */
       'attachTo': string | HTMLElement;
-      /**
-       * If true, gesture will prevent any other gestures from firing
-       */
-      'autoBlockAll': boolean;
       /**
        * Function to execute to see if gesture can start. Return boolean
        */
@@ -2319,10 +2352,6 @@ declare global {
        * What component to attach listeners to.
        */
       'attachTo'?: string | HTMLElement;
-      /**
-       * If true, gesture will prevent any other gestures from firing
-       */
-      'autoBlockAll'?: boolean;
       /**
        * Function to execute to see if gesture can start. Return boolean
        */
@@ -2428,6 +2457,10 @@ declare global {
   namespace StencilComponents {
     interface IonHeader {
       /**
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
+       */
+      'mode': Mode;
+      /**
        * If true, the header will be translucent. Note: In order to scroll content behind the header, the `fullscreen` attribute needs to be set on the content. Defaults to `false`.
        */
       'translucent': boolean;
@@ -2454,6 +2487,10 @@ declare global {
   namespace JSXElements {
     export interface IonHeaderAttributes extends HTMLAttributes {
       /**
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
+       */
+      'mode'?: Mode;
+      /**
        * If true, the header will be translucent. Note: In order to scroll content behind the header, the `fullscreen` attribute needs to be set on the content. Defaults to `false`.
        */
       'translucent'?: boolean;
@@ -2466,10 +2503,29 @@ declare global {
 
   namespace StencilComponents {
     interface IonHideWhen {
+      /**
+       * If the current media query matches this value, the element will hide.
+       */
       'mediaQuery': string;
+      /**
+       * If the current platform matches the given value, the element will hide. Accepts a comma separated list of modes to match against.
+       */
+      'mode': Mode;
+      /**
+       * If false, and two or more conditions are set, the element will hide when all are true. If true, and two or more conditions are set, the element will hide when at least one is true.
+       */
       'or': boolean;
+      /**
+       * If the current orientation matches this value, the element will hide.
+       */
       'orientation': string;
+      /**
+       * If the current platform matches the given value, the element will hide. Accepts a comma separated list of platform to match against.
+       */
       'platform': string;
+      /**
+       * If the current screen width matches the given size, the element will hide. Uses the build in sizes of xs, sm, md, lg, xl.
+       */
       'size': string;
     }
   }
@@ -2493,10 +2549,29 @@ declare global {
   }
   namespace JSXElements {
     export interface IonHideWhenAttributes extends HTMLAttributes {
+      /**
+       * If the current media query matches this value, the element will hide.
+       */
       'mediaQuery'?: string;
+      /**
+       * If the current platform matches the given value, the element will hide. Accepts a comma separated list of modes to match against.
+       */
+      'mode'?: Mode;
+      /**
+       * If false, and two or more conditions are set, the element will hide when all are true. If true, and two or more conditions are set, the element will hide when at least one is true.
+       */
       'or'?: boolean;
+      /**
+       * If the current orientation matches this value, the element will hide.
+       */
       'orientation'?: string;
+      /**
+       * If the current platform matches the given value, the element will hide. Accepts a comma separated list of platform to match against.
+       */
       'platform'?: string;
+      /**
+       * If the current screen width matches the given size, the element will hide. Uses the build in sizes of xs, sm, md, lg, xl.
+       */
       'size'?: string;
     }
   }
@@ -3200,6 +3275,10 @@ declare global {
        */
       'detail': boolean;
       /**
+       * The icon to use when `detail` is set to `true`. Defaults to `"ios-arrow-forward"`.
+       */
+      'detailIcon': string;
+      /**
        * If true, the user cannot interact with the item. Defaults to `false`.
        */
       'disabled': boolean;
@@ -3219,6 +3298,11 @@ declare global {
        * When using a router, it specifies the transition direction when navigating to another page using `href`.
        */
       'routerDirection': RouterDirection;
+      'state': 'valid' | 'invalid' | 'focus';
+      /**
+       * The type of the button. Only used when an `onclick` or `button` property is present. Possible values are: `"submit"`, `"reset"` and `"button"`. Default value is: `"button"`
+       */
+      'type': 'submit' | 'reset' | 'button';
     }
   }
 
@@ -3254,6 +3338,10 @@ declare global {
        */
       'detail'?: boolean;
       /**
+       * The icon to use when `detail` is set to `true`. Defaults to `"ios-arrow-forward"`.
+       */
+      'detailIcon'?: string;
+      /**
        * If true, the user cannot interact with the item. Defaults to `false`.
        */
       'disabled'?: boolean;
@@ -3273,6 +3361,11 @@ declare global {
        * When using a router, it specifies the transition direction when navigating to another page using `href`.
        */
       'routerDirection'?: RouterDirection;
+      'state'?: 'valid' | 'invalid' | 'focus';
+      /**
+       * The type of the button. Only used when an `onclick` or `button` property is present. Possible values are: `"submit"`, `"reset"` and `"button"`. Default value is: `"button"`
+       */
+      'type'?: 'submit' | 'reset' | 'button';
     }
   }
 }
@@ -3394,9 +3487,13 @@ declare global {
        */
       'closeSlidingItems': () => boolean;
       /**
-       * Get the [Item Sliding](../../item-sliding/ItemSliding) that is currently opene.
+       * Get the [Item Sliding](../../item-sliding/ItemSliding) that is currently open.
        */
       'getOpenItem': () => HTMLIonItemSlidingElement | undefined;
+      /**
+       * If true, the list will have margin around it and rounded corners. Defaults to `false`.
+       */
+      'inset': boolean;
       /**
        * How the bottom border should be displayed on all items.
        */
@@ -3428,6 +3525,10 @@ declare global {
   namespace JSXElements {
     export interface IonListAttributes extends HTMLAttributes {
       /**
+       * If true, the list will have margin around it and rounded corners. Defaults to `false`.
+       */
+      'inset'?: boolean;
+      /**
        * How the bottom border should be displayed on all items.
        */
       'lines'?: 'full' | 'inset' | 'none';
@@ -3443,7 +3544,7 @@ declare global {
       /**
        * Create a loading overlay with loading options.
        */
-      'create': (opts?: LoadingOptions | undefined) => Promise<HTMLIonLoadingElement | null>;
+      'create': (opts?: LoadingOptions | undefined) => Promise<HTMLIonLoadingElement>;
       /**
        * Dismiss the open loading overlay.
        */
@@ -3523,11 +3624,11 @@ declare global {
       /**
        * Returns a promise that resolves when the loading did dismiss. It also accepts a callback that is called in the same circumstances.
        */
-      'onDidDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onDidDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Returns a promise that resolves when the loading will dismiss. It also accepts a callback that is called in the same circumstances.
        */
-      'onWillDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onWillDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       'overlayId': number;
       /**
        * Present the loading overlay after it has been created.
@@ -3849,10 +3950,6 @@ declare global {
        */
       'menuId': string;
       'open': (animated?: boolean) => Promise<boolean>;
-      /**
-       * If true, the menu will persist on child pages.
-       */
-      'persistent': boolean;
       'setOpen': (shouldOpen: boolean, animated?: boolean) => Promise<boolean>;
       /**
        * Which side of the view the menu should be placed. Default `"start"`.
@@ -3918,10 +4015,6 @@ declare global {
        */
       'onIonOpen'?: (event: CustomEvent<void>) => void;
       /**
-       * If true, the menu will persist on child pages.
-       */
-      'persistent'?: boolean;
-      /**
        * Which side of the view the menu should be placed. Default `"start"`.
        */
       'side'?: Side;
@@ -3945,7 +4038,7 @@ declare global {
       /**
        * Create a modal overlay with modal options.
        */
-      'create': (opts?: ModalOptions | undefined) => Promise<HTMLIonModalElement | null>;
+      'create': (opts?: ModalOptions | undefined) => Promise<HTMLIonModalElement>;
       /**
        * Dismiss the open modal overlay.
        */
@@ -3987,10 +4080,6 @@ declare global {
   namespace StencilComponents {
     interface IonModal {
       /**
-       * The color to use from your Sass `$colors` map. Default options are: `"primary"`, `"secondary"`, `"tertiary"`, `"success"`, `"warning"`, `"danger"`, `"light"`, `"medium"`, and `"dark"`. For more information, see [Theming your App](/docs/theming/theming-your-app).
-       */
-      'color': Color;
-      /**
        * The component to display inside of the modal.
        */
       'component': ComponentRef;
@@ -4021,17 +4110,13 @@ declare global {
        */
       'leaveAnimation': AnimationBuilder;
       /**
-       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`. For more information, see [Platform Styles](/docs/theming/platform-specific-styles).
-       */
-      'mode': Mode;
-      /**
        * Returns a promise that resolves when the modal did dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onDidDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onDidDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Returns a promise that resolves when the modal will dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onWillDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onWillDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       'overlayId': number;
       /**
        * Present the modal overlay after it has been created.
@@ -4068,10 +4153,6 @@ declare global {
   namespace JSXElements {
     export interface IonModalAttributes extends HTMLAttributes {
       /**
-       * The color to use from your Sass `$colors` map. Default options are: `"primary"`, `"secondary"`, `"tertiary"`, `"success"`, `"warning"`, `"danger"`, `"light"`, `"medium"`, and `"dark"`. For more information, see [Theming your App](/docs/theming/theming-your-app).
-       */
-      'color'?: Color;
-      /**
        * The component to display inside of the modal.
        */
       'component'?: ComponentRef;
@@ -4097,10 +4178,6 @@ declare global {
        * Animation to use when the modal is dismissed.
        */
       'leaveAnimation'?: AnimationBuilder;
-      /**
-       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`. For more information, see [Platform Styles](/docs/theming/platform-specific-styles).
-       */
-      'mode'?: Mode;
       /**
        * Emitted after the modal has dismissed.
        */
@@ -4303,6 +4380,7 @@ declare global {
       /**
        * Returns the length of navigation stack
        */
+      'isAnimating': () => boolean;
       'length': () => number;
       /**
        * Call to navigate back from a current component. Similar to push(), you can also pass navigation options.
@@ -4340,7 +4418,7 @@ declare global {
        * Set the root for the current navigation stack.
        */
       'setRoot': (component: NavComponent, componentProps?: ComponentProps | null | undefined, opts?: NavOptions | null | undefined, done?: TransitionDoneFn | undefined) => Promise<boolean>;
-      'setRouteId': (id: string, params: any, direction: RouterIntent) => Promise<RouteWrite>;
+      'setRouteId': (id: string, params: any, direction: number) => Promise<RouteWrite>;
       /**
        * If the nav component should allow for swipe-to-go-back
        */
@@ -4485,7 +4563,7 @@ declare global {
 
   namespace StencilComponents {
     interface IonPickerController {
-      'create': (opts?: PickerOptions | undefined) => Promise<HTMLIonPickerElement | null>;
+      'create': (opts?: PickerOptions | undefined) => Promise<HTMLIonPickerElement>;
       'dismiss': (data?: any, role?: string | undefined, pickerId?: number) => Promise<void>;
       'getTop': () => HTMLIonPickerElement;
     }
@@ -4575,11 +4653,11 @@ declare global {
       /**
        * Returns a promise that resolves when the picker did dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onDidDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onDidDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Returns a promise that resolves when the picker will dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onWillDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onWillDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       'overlayId': number;
       /**
        * Present the picker overlay after it has been created.
@@ -4692,7 +4770,7 @@ declare global {
       /**
        * Create a popover overlay with popover options.
        */
-      'create': (opts?: PopoverOptions | undefined) => Promise<HTMLIonPopoverElement | null>;
+      'create': (opts?: PopoverOptions | undefined) => Promise<HTMLIonPopoverElement>;
       /**
        * Dismiss the open popover overlay.
        */
@@ -4778,11 +4856,11 @@ declare global {
       /**
        * Returns a promise that resolves when the popover did dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onDidDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onDidDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Returns a promise that resolves when the popover will dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onWillDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onWillDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       'overlayId': number;
       /**
        * Present the popover overlay after it has been created.
@@ -5498,6 +5576,10 @@ declare global {
        * Adds the ripple effect to the parent elment
        */
       'addRipple': (pageX: number, pageY: number) => void;
+      'parent': HTMLElement | string;
+      /**
+       * If true, the ripple effect will listen to any click events and animate 
+       */
       'tapClick': boolean;
     }
   }
@@ -5521,6 +5603,10 @@ declare global {
   }
   namespace JSXElements {
     export interface IonRippleEffectAttributes extends HTMLAttributes {
+      'parent'?: HTMLElement | string;
+      /**
+       * If true, the ripple effect will listen to any click events and animate 
+       */
       'tapClick'?: boolean;
     }
   }
@@ -5691,7 +5777,7 @@ declare global {
 
   namespace StencilComponents {
     interface IonRouter {
-      'navChanged': (intent: RouterIntent) => Promise<boolean>;
+      'navChanged': (intent: number) => Promise<boolean>;
       'printDebug': () => void;
       /**
        * Navigate to the specified URL 
@@ -5798,7 +5884,7 @@ declare global {
        */
       'scrollByPoint': (x: number, y: number, duration: number, done?: Function | undefined) => Promise<any>;
       /**
-       * If true, the component will emit scroll events 
+       * If true, the component will emit scroll events. 
        */
       'scrollEvents': boolean;
       /**
@@ -5856,7 +5942,7 @@ declare global {
        */
       'onIonScrollStart'?: (event: CustomEvent<ScrollBaseDetail>) => void;
       /**
-       * If true, the component will emit scroll events 
+       * If true, the component will emit scroll events. 
        */
       'scrollEvents'?: boolean;
     }
@@ -5881,11 +5967,19 @@ declare global {
        */
       'autocorrect': string;
       /**
-       * Set the the cancel button text. Default: `"Cancel"`.
+       * Set the cancel button icon. Only applies to `md` mode. Defaults to `"md-arrow-back"`.
+       */
+      'cancelButtonIcon': string;
+      /**
+       * Set the the cancel button text. Only applies to `ios` mode. Default: `"Cancel"`.
        */
       'cancelButtonText': string;
       /**
-       * The color to use from your Sass `$colors` map. Default options are: `"primary"`, `"secondary"`, `"tertiary"`, `"success"`, `"warning"`, `"danger"`, `"light"`, `"medium"`, and `"dark"`. For more information, see [Theming your App](/docs/theming/theming-your-app).
+       * Set the clear icon. Defaults to `"close-circle"` for `ios` and `"close"` for `md`.
+       */
+      'clearIcon': string;
+      /**
+       * The color the searchbar should be.
        */
       'color': Color;
       /**
@@ -5893,13 +5987,17 @@ declare global {
        */
       'debounce': number;
       /**
-       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`. For more information, see [Platform Styles](/docs/theming/platform-specific-styles).
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
        */
       'mode': Mode;
       /**
        * Set the input's placeholder. Default `"Search"`.
        */
       'placeholder': string;
+      /**
+       * The icon to use as the search icon. Defaults to `"search"`.
+       */
+      'searchIcon': string;
       /**
        * If true, show the cancel button. Default `false`.
        */
@@ -5951,11 +6049,19 @@ declare global {
        */
       'autocorrect'?: string;
       /**
-       * Set the the cancel button text. Default: `"Cancel"`.
+       * Set the cancel button icon. Only applies to `md` mode. Defaults to `"md-arrow-back"`.
+       */
+      'cancelButtonIcon'?: string;
+      /**
+       * Set the the cancel button text. Only applies to `ios` mode. Default: `"Cancel"`.
        */
       'cancelButtonText'?: string;
       /**
-       * The color to use from your Sass `$colors` map. Default options are: `"primary"`, `"secondary"`, `"tertiary"`, `"success"`, `"warning"`, `"danger"`, `"light"`, `"medium"`, and `"dark"`. For more information, see [Theming your App](/docs/theming/theming-your-app).
+       * Set the clear icon. Defaults to `"close-circle"` for `ios` and `"close"` for `md`.
+       */
+      'clearIcon'?: string;
+      /**
+       * The color the searchbar should be.
        */
       'color'?: Color;
       /**
@@ -5963,7 +6069,7 @@ declare global {
        */
       'debounce'?: number;
       /**
-       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`. For more information, see [Platform Styles](/docs/theming/platform-specific-styles).
+       * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
        */
       'mode'?: Mode;
       /**
@@ -5994,6 +6100,10 @@ declare global {
        * Set the input's placeholder. Default `"Search"`.
        */
       'placeholder'?: string;
+      /**
+       * The icon to use as the search icon. Defaults to `"search"`.
+       */
+      'searchIcon'?: string;
       /**
        * If true, show the cancel button. Default `false`.
        */
@@ -6028,10 +6138,6 @@ declare global {
        */
       'color': Color;
       'disabled': boolean;
-      /**
-       * Contains a URL or a URL fragment that the hyperlink points to. If this property is set, an anchor tag will be rendered.
-       */
-      'href': string;
       /**
        * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
        */
@@ -6071,10 +6177,6 @@ declare global {
        */
       'color'?: Color;
       'disabled'?: boolean;
-      /**
-       * Contains a URL or a URL fragment that the hyperlink points to. If this property is set, an anchor tag will be rendered.
-       */
-      'href'?: string;
       /**
        * The mode determines which platform styles to use. Possible values are: `"ios"` or `"md"`.
        */
@@ -6414,10 +6516,29 @@ declare global {
 
   namespace StencilComponents {
     interface IonShowWhen {
+      /**
+       * If the current media query matches this value, the element will show.
+       */
       'mediaQuery': string;
+      /**
+       * If the current platform matches the given value, the element will show. Accepts a comma separated list of modes to match against.
+       */
+      'mode': Mode;
+      /**
+       * If false, and two or more conditions are set, the element will show when all are true. If true, and two or more conditions are set, the element will show when at least one is true.
+       */
       'or': boolean;
+      /**
+       * If the current orientation matches this value, the element will show.
+       */
       'orientation': string;
+      /**
+       * If the current platform matches the given value, the element will show. Accepts a comma separated list of platform to match against.
+       */
       'platform': string;
+      /**
+       * If the current screen width matches the given size, the element will show. Uses the build in sizes of xs, sm, md, lg, xl.
+       */
       'size': string;
     }
   }
@@ -6441,10 +6562,29 @@ declare global {
   }
   namespace JSXElements {
     export interface IonShowWhenAttributes extends HTMLAttributes {
+      /**
+       * If the current media query matches this value, the element will show.
+       */
       'mediaQuery'?: string;
+      /**
+       * If the current platform matches the given value, the element will show. Accepts a comma separated list of modes to match against.
+       */
+      'mode'?: Mode;
+      /**
+       * If false, and two or more conditions are set, the element will show when all are true. If true, and two or more conditions are set, the element will show when at least one is true.
+       */
       'or'?: boolean;
+      /**
+       * If the current orientation matches this value, the element will show.
+       */
       'orientation'?: string;
+      /**
+       * If the current platform matches the given value, the element will show. Accepts a comma separated list of platform to match against.
+       */
       'platform'?: string;
+      /**
+       * If the current screen width matches the given size, the element will show. Uses the build in sizes of xs, sm, md, lg, xl.
+       */
       'size'?: string;
     }
   }
@@ -6564,9 +6704,13 @@ declare global {
        */
       'options': any;
       /**
-       * Show or hide the pager
+       * If true, show the pagination. Defaults to `false`.
        */
       'pager': boolean;
+      /**
+       * If true, show the scrollbar. Defaults to `false`.
+       */
+      'scrollbar': boolean;
       /**
        * Transition to the next slide.
        */
@@ -6670,9 +6814,13 @@ declare global {
        */
       'options'?: any;
       /**
-       * Show or hide the pager
+       * If true, show the pagination. Defaults to `false`.
        */
       'pager'?: boolean;
+      /**
+       * If true, show the scrollbar. Defaults to `false`.
+       */
+      'scrollbar'?: boolean;
     }
   }
 }
@@ -6812,48 +6960,11 @@ declare global {
 declare global {
 
   namespace StencilComponents {
-    interface IonStatusTap {
-      /**
-       * How long the scrolling action should take. 
-       */
-      'duration': number;
-    }
-  }
-
-  interface HTMLIonStatusTapElement extends StencilComponents.IonStatusTap, HTMLStencilElement {}
-
-  var HTMLIonStatusTapElement: {
-    prototype: HTMLIonStatusTapElement;
-    new (): HTMLIonStatusTapElement;
-  };
-  interface HTMLElementTagNameMap {
-    'ion-status-tap': HTMLIonStatusTapElement;
-  }
-  interface ElementTagNameMap {
-    'ion-status-tap': HTMLIonStatusTapElement;
-  }
-  namespace JSX {
-    interface IntrinsicElements {
-      'ion-status-tap': JSXElements.IonStatusTapAttributes;
-    }
-  }
-  namespace JSXElements {
-    export interface IonStatusTapAttributes extends HTMLAttributes {
-      /**
-       * How long the scrolling action should take. 
-       */
-      'duration'?: number;
-    }
-  }
-}
-
-
-declare global {
-
-  namespace StencilComponents {
     interface IonTabButton {
+      'color': Color;
+      'mode': Mode;
       /**
-       * If the tab is selected or not 
+       * If true, the tab button will be selected. Defaults to `false`.
        */
       'selected': boolean;
       /**
@@ -6882,6 +6993,8 @@ declare global {
   }
   namespace JSXElements {
     export interface IonTabButtonAttributes extends HTMLAttributes {
+      'color'?: Color;
+      'mode'?: Mode;
       /**
        * Emitted when the tab button is loaded 
        */
@@ -6895,7 +7008,7 @@ declare global {
        */
       'onIonTabbarClick'?: (event: CustomEvent<HTMLIonTabElement>) => void;
       /**
-       * If the tab is selected or not 
+       * If true, the tab button will be selected. Defaults to `false`.
        */
       'selected'?: boolean;
       /**
@@ -6912,7 +7025,7 @@ declare global {
   namespace StencilComponents {
     interface IonTab {
       /**
-       * If the tab is active or not 
+       * If true, sets the tab as the active tab.
        */
       'active': boolean;
       /**
@@ -6931,6 +7044,9 @@ declare global {
        * The component to display inside of the tab.
        */
       'component': ComponentRef;
+      /**
+       * hidden 
+       */
       'delegate': FrameworkDelegate;
       /**
        * If true, the user cannot interact with the tab. Defaults to `false`.
@@ -6949,7 +7065,7 @@ declare global {
        */
       'icon': string;
       /**
-       * The title of the tab.
+       * The label of the tab.
        */
       'label': string;
       /**
@@ -6995,7 +7111,7 @@ declare global {
   namespace JSXElements {
     export interface IonTabAttributes extends HTMLAttributes {
       /**
-       * If the tab is active or not 
+       * If true, sets the tab as the active tab.
        */
       'active'?: boolean;
       /**
@@ -7014,6 +7130,9 @@ declare global {
        * The component to display inside of the tab.
        */
       'component'?: ComponentRef;
+      /**
+       * hidden 
+       */
       'delegate'?: FrameworkDelegate;
       /**
        * If true, the user cannot interact with the tab. Defaults to `false`.
@@ -7028,7 +7147,7 @@ declare global {
        */
       'icon'?: string;
       /**
-       * The title of the tab.
+       * The label of the tab.
        */
       'label'?: string;
       /**
@@ -7060,20 +7179,22 @@ declare global {
 
   namespace StencilComponents {
     interface IonTabbar {
+      'color': Color;
       /**
-       * If the tabbar should include the highlight on the active tab 
+       * If true, show the tab highlight bar under the selected tab.
        */
       'highlight': boolean;
       /**
-       * The layout of the title and icons 
+       * Set the layout of the text and icon in the tabbar. Available options: `"icon-top"`, `"icon-start"`, `"icon-end"`, `"icon-bottom"`, `"icon-hide"`, `"label-hide"`.
        */
       'layout': TabbarLayout;
+      'mode': Mode;
       /**
-       * The placement of the tabbar in the app 
+       * Set the position of the tabbar, relative to the content. Available options: `"top"`, `"bottom"`.
        */
       'placement': TabbarPlacement;
       /**
-       * If the tabbar is scrollable or not 
+       * If true, the tabs will be scrollable when there are enough tabs to overflow the width of the screen.
        */
       'scrollable': boolean;
       /**
@@ -7110,20 +7231,22 @@ declare global {
   }
   namespace JSXElements {
     export interface IonTabbarAttributes extends HTMLAttributes {
+      'color'?: Color;
       /**
-       * If the tabbar should include the highlight on the active tab 
+       * If true, show the tab highlight bar under the selected tab.
        */
       'highlight'?: boolean;
       /**
-       * The layout of the title and icons 
+       * Set the layout of the text and icon in the tabbar. Available options: `"icon-top"`, `"icon-start"`, `"icon-end"`, `"icon-bottom"`, `"icon-hide"`, `"label-hide"`.
        */
       'layout'?: TabbarLayout;
+      'mode'?: Mode;
       /**
-       * The placement of the tabbar in the app 
+       * Set the position of the tabbar, relative to the content. Available options: `"top"`, `"bottom"`.
        */
       'placement'?: TabbarPlacement;
       /**
-       * If the tabbar is scrollable or not 
+       * If true, the tabs will be scrollable when there are enough tabs to overflow the width of the screen.
        */
       'scrollable'?: boolean;
       /**
@@ -7161,11 +7284,11 @@ declare global {
        */
       'getTab': (tabOrIndex: string | number | HTMLIonTabElement) => HTMLIonTabElement | undefined;
       /**
-       * A unique name for the tabs
+       * A unique name for the tabs.
        */
       'name': string;
       /**
-       * If the tabs should be scrollable 
+       * If true, the tabs will be scrollable when there are enough tabs to overflow the width of the screen.
        */
       'scrollable': boolean;
       /**
@@ -7174,7 +7297,7 @@ declare global {
       'select': (tabOrIndex: number | HTMLIonTabElement) => Promise<boolean>;
       'setRouteId': (id: string) => Promise<RouteWrite>;
       /**
-       * If true, the tabbar
+       * If true, the tabbar will be hidden. Defaults to `false`.
        */
       'tabbarHidden': boolean;
       /**
@@ -7182,11 +7305,11 @@ declare global {
        */
       'tabbarHighlight': boolean;
       /**
-       * Set the tabbar layout: `icon-top`, `icon-start`, `icon-end`, `icon-bottom`, `icon-hide`, `title-hide`.
+       * Set the layout of the text and icon in the tabbar. Available options: `"icon-top"`, `"icon-start"`, `"icon-end"`, `"icon-bottom"`, `"icon-hide"`, `"label-hide"`.
        */
       'tabbarLayout': TabbarLayout;
       /**
-       * Set position of the tabbar: `top`, `bottom`.
+       * Set the position of the tabbar, relative to the content. Available options: `"top"`, `"bottom"`.
        */
       'tabbarPlacement': TabbarPlacement;
       /**
@@ -7194,7 +7317,7 @@ declare global {
        */
       'translucent': boolean;
       /**
-       * If the tabs should use the router or not. If true, `selectedTab` does nothing.
+       * If true, the tabs will use the router and `selectedTab` will not do anything.
        */
       'useRouter': boolean;
     }
@@ -7224,22 +7347,31 @@ declare global {
        */
       'color'?: Color;
       /**
-       * A unique name for the tabs
+       * A unique name for the tabs.
        */
       'name'?: string;
       /**
        * Emitted when the tab changes.
        */
       'onIonChange'?: (event: CustomEvent<{tab: HTMLIonTabElement}>) => void;
+      /**
+       * Emitted when the navigation has finished transitioning to a new component.
+       */
       'onIonNavDidChange'?: (event: CustomEvent<void>) => void;
+      /**
+       * Emitted when the navigation is about to transition to a new component.
+       */
       'onIonNavWillChange'?: (event: CustomEvent<void>) => void;
+      /**
+       * Emitted when the navigation will load a component.
+       */
       'onIonNavWillLoad'?: (event: CustomEvent<void>) => void;
       /**
-       * If the tabs should be scrollable 
+       * If true, the tabs will be scrollable when there are enough tabs to overflow the width of the screen.
        */
       'scrollable'?: boolean;
       /**
-       * If true, the tabbar
+       * If true, the tabbar will be hidden. Defaults to `false`.
        */
       'tabbarHidden'?: boolean;
       /**
@@ -7247,11 +7379,11 @@ declare global {
        */
       'tabbarHighlight'?: boolean;
       /**
-       * Set the tabbar layout: `icon-top`, `icon-start`, `icon-end`, `icon-bottom`, `icon-hide`, `title-hide`.
+       * Set the layout of the text and icon in the tabbar. Available options: `"icon-top"`, `"icon-start"`, `"icon-end"`, `"icon-bottom"`, `"icon-hide"`, `"label-hide"`.
        */
       'tabbarLayout'?: TabbarLayout;
       /**
-       * Set position of the tabbar: `top`, `bottom`.
+       * Set the position of the tabbar, relative to the content. Available options: `"top"`, `"bottom"`.
        */
       'tabbarPlacement'?: TabbarPlacement;
       /**
@@ -7259,7 +7391,7 @@ declare global {
        */
       'translucent'?: boolean;
       /**
-       * If the tabs should use the router or not. If true, `selectedTab` does nothing.
+       * If true, the tabs will use the router and `selectedTab` will not do anything.
        */
       'useRouter'?: boolean;
     }
@@ -7621,7 +7753,7 @@ declare global {
       /**
        * Create a toast overlay with toast options.
        */
-      'create': (opts?: ToastOptions | undefined) => Promise<HTMLIonToastElement | null>;
+      'create': (opts?: ToastOptions | undefined) => Promise<HTMLIonToastElement>;
       /**
        * Dismiss the open toast overlay.
        */
@@ -7694,11 +7826,11 @@ declare global {
       /**
        * Returns a promise that resolves when the toast did dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onDidDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onDidDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       /**
        * Returns a promise that resolves when the toast will dismiss. It also accepts a callback that is called in the same circustances.
        */
-      'onWillDismiss': (callback?: ((detail: OverlayEventDetail) => void) | undefined) => Promise<OverlayEventDetail>;
+      'onWillDismiss': (callback?: ((detail: OverlayEventDetail<any>) => void) | undefined) => Promise<OverlayEventDetail<any>>;
       'overlayId': number;
       /**
        * The position of the toast on the screen. Possible values: "top", "middle", "bottom".

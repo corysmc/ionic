@@ -1,17 +1,22 @@
 # ion-list
 
 Lists are made up of multiple rows of items which can contain text, buttons, toggles,
-icons, thumbnails, and much more. Lists generally contain items with similar
-data content, such as images and text.
+icons, thumbnails, and much more. Lists generally contain items with similar data content, such as images and text.
 
-Lists support several interactions including swiping items to reveal options, dragging to
-reorder items within the list, and deleting items.
+Lists support several interactions including swiping items to reveal options, dragging to reorder items within the list, and deleting items.
 
 
 <!-- Auto Generated Below -->
 
 
 ## Properties
+
+#### inset
+
+boolean
+
+If true, the list will have margin around it and rounded corners. Defaults to `false`.
+
 
 #### lines
 
@@ -21,6 +26,13 @@ How the bottom border should be displayed on all items.
 
 
 ## Attributes
+
+#### inset
+
+boolean
+
+If true, the list will have margin around it and rounded corners. Defaults to `false`.
+
 
 #### lines
 
@@ -39,7 +51,7 @@ Returns a boolean value of whether it closed an item or not.
 
 #### getOpenItem()
 
-Get the [Item Sliding](../../item-sliding/ItemSliding) that is currently opene.
+Get the [Item Sliding](../../item-sliding/ItemSliding) that is currently open.
 
 
 #### setOpenItem()

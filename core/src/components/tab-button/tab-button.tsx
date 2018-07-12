@@ -1,5 +1,6 @@
-import {Component, Element, Event, EventEmitter, Listen, Prop, State} from '@stencil/core';
-import { Mode } from '../../interface';
+import { Component, Element, Event, EventEmitter, Listen, Prop, State } from '@stencil/core';
+import { Color, Mode } from '../../interface';
+import { createColorClasses } from '../../utils/theme';
 
 
 @Component({
@@ -7,17 +8,21 @@ import { Mode } from '../../interface';
   styleUrls: {
     ios: 'tab-button.ios.scss',
     md: 'tab-button.md.scss'
-  }
+  },
+  shadow: true
 })
 export class TabButton {
 
   @Element() el!: HTMLElement;
 
-  mode!: Mode;
+  @Prop() mode!: Mode;
+  @Prop() color?: Color;
 
   @State() keyFocus = false;
 
-  /** If the tab is selected or not */
+  /**
+   * If true, the tab button will be selected. Defaults to `false`.
+   */
   @Prop() selected = false;
 
   /** The tab component for the button */
@@ -60,24 +65,25 @@ export class TabButton {
   hostData() {
     const selected = this.selected;
     const tab = this.tab;
-    const hasTitle = !!tab.label;
+    const hasLabel = !!tab.label;
     const hasIcon = !!tab.icon;
-    const hasTitleOnly = (hasTitle && !hasIcon);
-    const hasIconOnly = (hasIcon && !hasTitle);
+    const hasLabelOnly = (hasLabel && !hasIcon);
+    const hasIconOnly = (hasIcon && !hasLabel);
     const hasBadge = !!tab.badge;
     return {
       'role': 'tab',
       'id': tab.btnId,
       'aria-selected': selected,
-      'hidden': !tab.show,
       class: {
+        ...createColorClasses(this.color),
+        'tab-hidden': !tab.show,
         'tab-selected': selected,
-        'has-title': hasTitle,
+        'has-label': hasLabel,
         'has-icon': hasIcon,
-        'has-title-only': hasTitleOnly,
+        'has-label-only': hasLabelOnly,
         'has-icon-only': hasIconOnly,
         'has-badge': hasBadge,
-        'tab-btn-disabled': tab.disabled,
+        'tab-button-disabled': tab.disabled,
         'focused': this.keyFocus
       }
     };
@@ -90,7 +96,7 @@ export class TabButton {
     return [
       <a
         href={href}
-        class="tab-cover"
+        class="tab-button-native"
         onKeyUp={this.onKeyUp.bind(this)}
         onBlur={this.onBlur.bind(this)}>
         { tab.icon && <ion-icon class="tab-button-icon" icon={tab.icon}></ion-icon> }
